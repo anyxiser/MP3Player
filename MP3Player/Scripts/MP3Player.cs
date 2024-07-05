@@ -7,8 +7,6 @@ namespace MP3Player
 {
     partial class MP3Player
     {
-        
-
         [DllImport("winmm.dll")]
         private static extern long mciSendString(
             string command,
@@ -43,10 +41,8 @@ namespace MP3Player
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                
-                OpenInMCI(openFileDialog.FileName);
-               
+            {               
+                OpenInMCI(openFileDialog.FileName);     
             }
         }
 
@@ -68,6 +64,5 @@ namespace MP3Player
                 _isFileOpened = false;
             }
         }
-
     }
 }

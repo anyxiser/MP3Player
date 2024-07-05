@@ -13,7 +13,7 @@ namespace MP3Player
             WriteIndented = true,
         };
 
-        public static List<Song> Songs { get; private set; } = GetSongsFromJSONFile();
+        public static List<Song> Songs { get; set; } = new List<Song>();
 
         public static void WriteSongsToJSONFile()
         {

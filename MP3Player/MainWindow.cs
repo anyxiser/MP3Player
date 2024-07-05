@@ -1,30 +1,35 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MP3Player
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
         private MP3Player _mp3Player = new MP3Player();
 
-        public Form1()
+        public delegate void ChangeSomething(string path);
+
+        public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void changeText()
+        private void ChangeText()
         {
             songs.Items.Clear();
             if (SongsToJSON.Songs != null)
             {
                 foreach (Song song in SongsToJSON.Songs)
                     songs.Items.Add(song.Name);
-            }              
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            changeText();
+            if (SongsToJSON.GetSongsFromJSONFile() != null)
+                SongsToJSON.Songs = SongsToJSON.GetSongsFromJSONFile();
+            ChangeText();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -37,7 +42,7 @@ namespace MP3Player
             }
             SongsToJSON.Songs.Add(_mp3Player.Song);
             label1.Text = _mp3Player.Song.Name;
-            changeText();                  
+            ChangeText();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -57,13 +62,32 @@ namespace MP3Player
 
         private void songs_SelectedValueChanged(object sender, EventArgs e)
         {
-            foreach (Song song in SongsToJSON.Songs)
-                if (song.Name == songs.Items[songs.SelectedIndex])
-                {
-                    _mp3Player.OpenInMCI(song.Path);
-                    label1.Text = _mp3Player.Song.Name;
-                    break;
-                }
+            try
+            {
+                foreach (Song song in SongsToJSON.Songs)
+                    if (song.Name == songs.Items[songs.SelectedIndex].ToString())
+                    {
+                        _mp3Player.OpenInMCI(song.Path);
+                        label1.Text = _mp3Player.Song.Name;
+                        break;
+                    }
+            }
+            catch
+            {
+                return;
+            }          
+        }
+
+        private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PreferencesWindow form2 = new PreferencesWindow();
+            form2.Show();
+            form2.OnChangeSomething += ChangeBackground;
+        }
+
+        private void ChangeBackground(string pathToImage)
+        {
+            BackgroundImage = Image.FromFile(pathToImage);
         }
     }
 }

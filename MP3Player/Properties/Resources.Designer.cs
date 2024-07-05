@@ -63,16 +63,6 @@ namespace MP3Player.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap photo_2023_01_05_17_58_30 {
-            get {
-                object obj = ResourceManager.GetObject("photo_2023-01-05_17-58-30", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap photo_2024_06_14_19_31_54 {
             get {
                 object obj = ResourceManager.GetObject("photo_2024-06-14_19-31-54", resourceCulture);
