@@ -101,7 +101,6 @@
             this.Name = "PreferencesWindow";
             this.Text = "Preferences";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PreferencesWindow_FormClosed);
-            this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.previewImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

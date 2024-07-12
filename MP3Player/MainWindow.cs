@@ -7,6 +7,7 @@ namespace MP3Player
     public partial class MainWindow : Form
     {
         private MP3Player _mp3Player = new MP3Player();
+        private DictionarySaver<string> _saver = new DictionarySaver<string>("songs.json");
 
         public delegate void ChangeSomething(string path);
 
@@ -18,31 +19,31 @@ namespace MP3Player
         private void ChangeText()
         {
             songs.Items.Clear();
-            if (SongsToJSON.Songs != null)
+            
+            foreach (string song in _saver.Data.Keys)
             {
-                foreach (Song song in SongsToJSON.Songs)
-                    songs.Items.Add(song.Name);
+                songs.Items.Add(song);
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (SongsToJSON.GetSongsFromJSONFile() != null)
-                SongsToJSON.Songs = SongsToJSON.GetSongsFromJSONFile();
+            _saver.Load();
+
             ChangeText();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             _mp3Player.OpenSongFile();
-            foreach (Song song in SongsToJSON.Songs)
-            {
-                if (_mp3Player.Song.Name == song.Name)
-                    return;
-            }
-            SongsToJSON.Songs.Add(_mp3Player.Song);
+
+            if (_saver.Data.ContainsKey(_mp3Player.Song.Name))
+                return;
+
+            _saver.AddElement(_mp3Player.Song.Name, _mp3Player.Song.Path);
+            songs.Items.Add(_mp3Player.Song.Name);
             label1.Text = _mp3Player.Song.Name;
-            ChangeText();
+            songs.SelectedIndex = songs.Items.Count - 1;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -57,25 +58,18 @@ namespace MP3Player
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            SongsToJSON.WriteSongsToJSONFile();
+            _saver.Save();
         }
 
         private void songs_SelectedValueChanged(object sender, EventArgs e)
         {
-            try
-            {
-                foreach (Song song in SongsToJSON.Songs)
-                    if (song.Name == songs.Items[songs.SelectedIndex].ToString())
-                    {
-                        _mp3Player.OpenInMCI(song.Path);
-                        label1.Text = _mp3Player.Song.Name;
-                        break;
-                    }
-            }
-            catch
-            {
+            string song = songs.Items[songs.SelectedIndex].ToString();
+
+            if (_saver.Data.ContainsKey(song))
                 return;
-            }          
+
+            _mp3Player.OpenInWMP(_saver.Data[song]);
+            label1.Text = song;
         }
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)

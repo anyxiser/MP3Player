@@ -1,36 +1,34 @@
-﻿using System;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using WMPLib;
+using System.IO;
 
 namespace MP3Player
 {
     partial class MP3Player
     {
-        [DllImport("winmm.dll")]
-        private static extern long mciSendString(
-            string command,
-            StringBuilder stringReturn,
-            int returnLength,
-            IntPtr hwndCallBack);
+        public Song Song => _song;
 
-        public Song Song { get; set; }
-        private bool _isFileOpened = false;
+        private Song _song = null;
+        private WindowsMediaPlayer _mediaPlayer = new WindowsMediaPlayer();
 
-        private string _getNameOfSong(string path)
+        private string getFileName(string path)
         {
             string[] separatedPath = path.Split('\\');
+
+            if (separatedPath.Length == 0)
+                return string.Empty;
+
             string songName = separatedPath[separatedPath.Length - 1];
+
+            if (songName.Length == 0)
+                return string.Empty;
+
             return songName.Split('.')[0];
         }
 
-        public void OpenInMCI(string path)
+        public void OpenInWMP(string path)
         {
-            Song = new Song(_getNameOfSong(path), path);
-            string commandString = "open \"" + path + "\" type mpegvideo alias MediaFile";
-            mciSendString(commandString, null, 0, IntPtr.Zero);
-
-            _isFileOpened = true;
+            _song = new Song(getFileName(path), path);
         }
 
         public void OpenSongFile()
@@ -40,29 +38,27 @@ namespace MP3Player
                 Filter = "Media | *.wav; *.mp3"
             };
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {               
-                OpenInMCI(openFileDialog.FileName);     
-            }
+            if (openFileDialog.ShowDialog() == DialogResult.OK)                         
+                OpenInWMP(openFileDialog.FileName);     
+            
         }
 
         public void PlaySongFile()
         {
-            if (_isFileOpened)
-            {
-                string commandString = "play " + Song.Path + " from 0";
-                mciSendString(commandString, null, 0, IntPtr.Zero);
-            }
+            if (_song == null || !File.Exists(_song.Path))
+                return;
+
+            _mediaPlayer.URL = _song.Path;
+            _mediaPlayer.controls.play();
         }
 
         public void CloseSongFile()
         {
-            if (_isFileOpened)
-            {
-                string commandString = "close " + Song.Path;
-                mciSendString(commandString, null, 0, IntPtr.Zero);
-                _isFileOpened = false;
-            }
+            if (_song == null)
+                return;
+
+            _mediaPlayer.controls.stop();
+            _song = null;
         }
     }
 }
